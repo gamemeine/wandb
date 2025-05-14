@@ -2231,6 +2231,8 @@ class Run:
         self,
         exit_code: int | None = None,
     ) -> None:
+        # self.summary['loss'] = 123
+
         logger.info(f"finishing run {self._get_path()}")
         with telemetry.context(run=self) as tel:
             tel.feature.finish = True
@@ -4145,6 +4147,8 @@ class Run:
                 final_summary[item.key] = json.loads(item.value_json)
 
             logger.info("rendering summary")
+            print(final_summary.items())
+
             summary_rows = []
             for key, value in sorted(final_summary.items()):
                 # arrays etc. might be too large. for now, we just don't print them

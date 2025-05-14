@@ -4,6 +4,7 @@ import json
 import logging
 import math
 import numbers
+import os
 import time
 from collections import defaultdict
 from queue import Queue
@@ -340,6 +341,8 @@ class HandleManager:
         v: Any,
         d: Optional[MetricRecord] = None,
     ) -> bool:
+        print("_update_summary_leaf", kl)
+
         has_summary = d and d.HasField("summary")
         if len(kl) == 1:
             copy_key = tuple(kl)
@@ -374,6 +377,8 @@ class HandleManager:
         v: Any,
         d: Optional[MetricRecord] = None,
     ) -> bool:
+        print("_update_summary_list", kl)
+
         metric_key = ".".join([k.replace(".", "\\.") for k in kl])
         d = self._metric_defines.get(metric_key, d)
         # if the dict has _type key, it's a wandb table object
@@ -413,7 +418,25 @@ class HandleManager:
         # keep old behavior fast path if no define metrics have been used
         if not self._metric_defines:
             history_dict = self._update_summary_media_objects(history_dict)
-            self._consolidated_summary.update(history_dict)
+            sweep_goal = os.environ.get("SWEEP_GOAL")
+
+            if 'loss' in history_dict and 'loss' in self._consolidated_summary:
+                current_loss = self._consolidated_summary['loss']
+                goal_loss = history_dict['loss']    # by default, use the latest loss
+
+                if sweep_goal == "min":
+                    goal_loss = min(current_loss, history_dict['loss'])
+                elif sweep_goal == "max":
+                    goal_loss = max(current_loss, history_dict['loss'])
+                elif sweep_goal == "last":
+                    goal_loss = history_dict['loss']
+
+                updated_history = history_dict.copy()
+                updated_history['loss'] = goal_loss
+            else:
+                updated_history = history_dict
+
+            self._consolidated_summary.update(updated_history)
             return list(history_dict.keys())
         updated_keys = []
         for k, v in history_dict.items():

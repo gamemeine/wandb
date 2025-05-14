@@ -837,6 +837,8 @@ class _WandbInit:
         backend.ensure_launched()
         self._logger.info("backend started and connected")
 
+        print("Init!!")
+
         # resuming needs access to the server, check server_status()?
         run = Run(
             config=config.base_no_artifacts,

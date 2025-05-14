@@ -78,7 +78,7 @@ class Agent:
     MAX_INITIAL_FAILURES = 5
 
     def __init__(
-        self, sweep_id=None, project=None, entity=None, function=None, count=None
+        self, sweep_id=None, project=None, entity=None, function=None, count=None, goal=None
     ):
         self._sweep_path = sweep_id
         self._sweep_id = None
@@ -97,6 +97,8 @@ class Agent:
         # if the directory to log to is not set, set it
         if os.environ.get(wandb.env.DIR) is None:
             os.environ[wandb.env.DIR] = os.path.abspath(os.getcwd())
+
+        self._goal = goal
 
     def _init(self):
         # These are not in constructor so that Agent instance can be rerun
@@ -297,11 +299,14 @@ class Agent:
                 sweep_param_path, job.config
             )
             os.environ[wandb.env.SWEEP_ID] = self._sweep_id
+            os.environ["SWEEP_GOAL"] = self._goal or "default"
             wandb.teardown()
 
             wandb.termlog(f"Agent Starting Run: {run_id} with config:")
             for k, v in job.config.items():
                 wandb.termlog("\t{}: {}".format(k, v["value"]))
+
+            print("Calling function...")
 
             self._function()
             wandb.finish()
@@ -334,7 +339,7 @@ class Agent:
         self._run_jobs_from_queue()
 
 
-def pyagent(sweep_id, function, entity=None, project=None, count=None):
+def pyagent(sweep_id, function, entity=None, project=None, count=None, goal=None):
     """Generic agent entrypoint, used for CLI or jupyter.
 
     Args:
@@ -352,6 +357,7 @@ def pyagent(sweep_id, function, entity=None, project=None, count=None):
         entity=entity,
         project=project,
         count=count,
+        goal=goal
     )
     agent.run()
 

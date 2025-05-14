@@ -535,6 +535,7 @@ def agent(
     entity: Optional[str] = None,
     project: Optional[str] = None,
     count: Optional[int] = None,
+    goal: Optional[str] = None,
 ) -> None:
     """Start one or more sweep agents.
 
@@ -563,7 +564,7 @@ def agent(
         # make sure we are logged in
         wandb_sdk.wandb_login._login(_silent=True)
         if function:
-            return pyagent(sweep_id, function, entity, project, count)
+            return pyagent(sweep_id, function, entity, project, count, goal)
         return run_agent(
             sweep_id,
             function=function,
