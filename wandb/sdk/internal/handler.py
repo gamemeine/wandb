@@ -341,8 +341,6 @@ class HandleManager:
         v: Any,
         d: Optional[MetricRecord] = None,
     ) -> bool:
-        print("_update_summary_leaf", kl)
-
         has_summary = d and d.HasField("summary")
         if len(kl) == 1:
             copy_key = tuple(kl)
@@ -377,8 +375,6 @@ class HandleManager:
         v: Any,
         d: Optional[MetricRecord] = None,
     ) -> bool:
-        print("_update_summary_list", kl)
-
         metric_key = ".".join([k.replace(".", "\\.") for k in kl])
         d = self._metric_defines.get(metric_key, d)
         # if the dict has _type key, it's a wandb table object

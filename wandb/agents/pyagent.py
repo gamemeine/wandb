@@ -312,8 +312,6 @@ class Agent:
             for k, v in job.config.items():
                 wandb.termlog("\t{}: {}".format(k, v["value"]))
 
-            print("Calling function...")
-
             self._function()
             wandb.finish()
         except KeyboardInterrupt as ki:
