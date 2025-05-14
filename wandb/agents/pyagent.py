@@ -78,7 +78,13 @@ class Agent:
     MAX_INITIAL_FAILURES = 5
 
     def __init__(
-        self, sweep_id=None, project=None, entity=None, function=None, count=None, goal=None
+        self,
+        sweep_id=None,
+        project=None,
+        entity=None,
+        function=None,
+        count=None,
+        goal=None,
     ):
         self._sweep_path = sweep_id
         self._sweep_id = None
@@ -357,7 +363,7 @@ def pyagent(sweep_id, function, entity=None, project=None, count=None, goal=None
         entity=entity,
         project=project,
         count=count,
-        goal=goal
+        goal=goal,
     )
     agent.run()
 
