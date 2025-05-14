@@ -52,14 +52,15 @@ repos:
         name: forbid-submodules
   - repo: local
     hooks:
-      - id: generate-stubs
-        name: "generate-stubs"
-        entry: python3 tools/generate_stubs.py
-        language: "python"
-        pass_filenames: false
-        always_run: true
-        additional_dependencies: ["ruff", "astunparse>=1.6.3"]
-        description: "Generates stubs for wandb module"
+      # TODO: uncomment
+      # - id: generate-stubs
+      #   name: "generate-stubs"
+      #   entry: python3 tools/generate_stubs.py
+      #   language: "python"
+      #   pass_filenames: false
+      #   always_run: true
+      #   additional_dependencies: ["ruff", "astunparse>=1.6.3"]
+      #   description: "Generates stubs for wandb module"
       - id: go-generate-proto
         name: "go-generate-proto"
         entry: core/scripts/pre-commit-hooks/run-go-generate.sh
