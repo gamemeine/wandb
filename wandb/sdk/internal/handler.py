@@ -420,19 +420,19 @@ class HandleManager:
             history_dict = self._update_summary_media_objects(history_dict)
             sweep_goal = os.environ.get("SWEEP_GOAL")
 
-            if 'loss' in history_dict and 'loss' in self._consolidated_summary:
-                current_loss = self._consolidated_summary['loss']
-                goal_loss = history_dict['loss']    # by default, use the latest loss
+            if "loss" in history_dict and "loss" in self._consolidated_summary:
+                current_loss = self._consolidated_summary["loss"]
+                goal_loss = history_dict["loss"]  # by default, use the latest loss
 
                 if sweep_goal == "min":
-                    goal_loss = min(current_loss, history_dict['loss'])
+                    goal_loss = min(current_loss, history_dict["loss"])
                 elif sweep_goal == "max":
-                    goal_loss = max(current_loss, history_dict['loss'])
+                    goal_loss = max(current_loss, history_dict["loss"])
                 elif sweep_goal == "last":
-                    goal_loss = history_dict['loss']
+                    goal_loss = history_dict["loss"]
 
                 updated_history = history_dict.copy()
-                updated_history['loss'] = goal_loss
+                updated_history["loss"] = goal_loss
             else:
                 updated_history = history_dict
 
