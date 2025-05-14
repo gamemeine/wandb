@@ -4147,7 +4147,6 @@ class Run:
                 final_summary[item.key] = json.loads(item.value_json)
 
             logger.info("rendering summary")
-            print(final_summary.items())
 
             summary_rows = []
             for key, value in sorted(final_summary.items()):

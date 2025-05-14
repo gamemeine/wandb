@@ -247,8 +247,6 @@ class SyncThread(threading.Thread):
         if self._log_path is not None:
             print(f"Find logs at: {self._log_path}")  # noqa: T201
         for sync_item in self._sync_list:
-            print("Syncing...")
-
             tb_event_files, tb_logdirs, tb_root = self._find_tfevent_files(sync_item)
             if os.path.isdir(sync_item):
                 files = os.listdir(sync_item)
