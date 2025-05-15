@@ -1,6 +1,7 @@
-import pytest
 import queue
 from unittest.mock import MagicMock
+
+import pytest
 from wandb.sdk.internal import handler, settings_static
 
 
@@ -13,7 +14,9 @@ from wandb.sdk.internal import handler, settings_static
         (None, 0.5, 0.2, 0.2),
     ],
 )
-def test_update_summary_loss_goal(test_settings, monkeypatch, sweep_goal, current_loss, new_loss, expected_loss):
+def test_update_summary_loss_goal(
+    test_settings, monkeypatch, sweep_goal, current_loss, new_loss, expected_loss
+):
     if sweep_goal is not None:
         monkeypatch.setenv("SWEEP_GOAL", sweep_goal)
     else:
