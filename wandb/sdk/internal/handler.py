@@ -6,6 +6,7 @@ import math
 import numbers
 import os
 import time
+import yaml
 from collections import defaultdict
 from queue import Queue
 from threading import Event
@@ -39,11 +40,12 @@ from wandb.proto.wandb_internal_pb2 import (
 )
 
 from ..interface.interface_queue import InterfaceQueue
-from ..lib import handler_util, proto_util
+from ..lib import handler_util, proto_util, config_util
 from ..wandb_metadata import Metadata
 from . import context, sample, tb_watcher
 from .settings_static import SettingsStatic
 from .system.system_monitor import SystemMonitor
+from wandb.apis import InternalApi
 
 if TYPE_CHECKING:
     from wandb.proto.wandb_internal_pb2 import MetricSummary
@@ -140,6 +142,23 @@ class HandleManager:
         self._internal_messages = InternalMessages()
 
         self._dropped_history = False
+
+        sweep_path = self._settings.sweep_param_path
+        if sweep_path:
+            self._sweep_config = config_util.dict_from_config_file(
+                sweep_path, must_exist=True
+            )
+
+        environ = os.environ
+        self._api = InternalApi(environ=environ)
+
+        self._sweep_id = self._settings.sweep_id
+
+        specs_json = {}
+        specs = json.dumps(specs_json)
+        sweep_obj = self._api.sweep(self._sweep_id, specs)
+        self._sweep_config = yaml.safe_load(sweep_obj["config"])
+        self._sweep_metric = self._sweep_config.get("metric", {}).get("name")
 
     def __len__(self) -> int:
         return self._record_q.qsize()
@@ -416,19 +435,19 @@ class HandleManager:
             history_dict = self._update_summary_media_objects(history_dict)
             sweep_goal = os.environ.get("SWEEP_GOAL")
 
-            if "loss" in history_dict and "loss" in self._consolidated_summary:
-                current_loss = self._consolidated_summary["loss"]
-                goal_loss = history_dict["loss"]  # by default, use the latest loss
+            if self._sweep_metric in history_dict and self._sweep_metric in self._consolidated_summary:
+                current_loss = self._consolidated_summary[self._sweep_metric]
+                goal_loss = history_dict[self._sweep_metric]  # by default, use the latest loss
 
                 if sweep_goal == "min":
-                    goal_loss = min(current_loss, history_dict["loss"])
+                    goal_loss = min(current_loss, history_dict[self._sweep_metric])
                 elif sweep_goal == "max":
-                    goal_loss = max(current_loss, history_dict["loss"])
+                    goal_loss = max(current_loss, history_dict[self._sweep_metric])
                 elif sweep_goal == "last":
-                    goal_loss = history_dict["loss"]
+                    goal_loss = history_dict[self._sweep_metric]
 
                 updated_history = history_dict.copy()
-                updated_history["loss"] = goal_loss
+                updated_history[self._sweep_metric] = goal_loss
             else:
                 updated_history = history_dict
 
