@@ -431,6 +431,7 @@ class HandleManager:
             if (
                 self._sweep_metric_name
                 and self._sweep_metric_name in self._consolidated_summary
+                and self._sweep_metric_name in history_dict
             ):
                 current_loss = self._consolidated_summary[self._sweep_metric_name]
                 summary_goal = history_dict[
