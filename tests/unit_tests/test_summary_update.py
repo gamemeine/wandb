@@ -1,26 +1,27 @@
-import queue
 from unittest.mock import MagicMock
 
 import pytest
+import queue
 from wandb.sdk.internal import handler, settings_static
 
 
 @pytest.mark.parametrize(
-    "sweep_goal,current_loss,new_loss,expected_loss",
+    "sweep_summary,current_loss,new_loss,expected_loss",
     [
-        ("min", 0.5, 0.3, 0.3),
-        ("max", 0.5, 0.8, 0.8),
-        ("last", 0.5, 0.2, 0.2),
-        (None, 0.5, 0.2, 0.2),
+        ("minimize", 0.5, 0.3, 0.3),
+        ("maximize", 0.5, 0.8, 0.8),
+        ("last",     0.5, 0.2, 0.2),
+        (None,       0.5, 0.2, 0.2),
     ],
 )
 def test_update_summary_loss_goal(
-    test_settings, monkeypatch, sweep_goal, current_loss, new_loss, expected_loss
+    test_settings, monkeypatch, sweep_summary, current_loss, new_loss, expected_loss
 ):
-    if sweep_goal is not None:
-        monkeypatch.setenv("SWEEP_GOAL", sweep_goal)
-    else:
-        monkeypatch.delenv("SWEEP_GOAL", raising=False)
+    monkeypatch.setattr(
+        handler.InternalApi,
+        "sweep",
+        lambda *args, **kwargs: {"config": "metric:\n  name: loss\n  goal: minimize"}
+    )
 
     result_q = queue.Queue()
     settings = test_settings({})
@@ -33,6 +34,9 @@ def test_update_summary_loss_goal(
         interface=MagicMock(),
         context_keeper=MagicMock(),
     )
+
+    hm._sweep_metric = "loss"
+    hm._sweep_summary = sweep_summary
 
     hm._consolidated_summary = {"loss": current_loss}
     hm._metric_defines = {}
