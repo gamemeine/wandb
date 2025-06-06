@@ -7,7 +7,13 @@ from wandb.proto import wandb_internal_pb2 as pb
 from wandb.sdk.internal import handler, sample, settings_static
 
 
-def test_handle_bigint(test_settings):
+def test_handle_bigint(test_settings, monkeypatch):
+    monkeypatch.setattr(
+        handler.InternalApi,
+        "sweep",
+        lambda *args, **kwargs: {"config": "{}"},
+    )
+
     result_q = queue.Queue()
     settings = test_settings({})
     hm = handler.HandleManager(
@@ -32,6 +38,7 @@ def test_handle_bigint(test_settings):
     hm._sampled_history["floats"].add(2.2)
     hm._sampled_history["floats"].add(4.5)
     hm._sampled_history["bigint"].add(bigint)
+
     hm.handle(record)
     result = result_q.get()
 
