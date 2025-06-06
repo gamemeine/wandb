@@ -58,8 +58,8 @@ def test_handle_bigint(test_settings, monkeypatch):
     [
         ("minimize", 0.5, 0.3, 0.3),
         ("maximize", 0.5, 0.8, 0.8),
-        ("last",     0.5, 0.2, 0.2),
-        (None,       0.5, 0.2, 0.2),
+        ("last", 0.5, 0.2, 0.2),
+        (None, 0.5, 0.2, 0.2),
     ],
 )
 def test_update_summary_loss_goal(
@@ -68,7 +68,7 @@ def test_update_summary_loss_goal(
     monkeypatch.setattr(
         handler.InternalApi,
         "sweep",
-        lambda *args, **kwargs: {"config": "metric:\n  name: loss\n  goal: minimize"}
+        lambda *args, **kwargs: {"config": "metric:\n  name: loss\n  goal: minimize"},
     )
 
     result_q = queue.Queue()
